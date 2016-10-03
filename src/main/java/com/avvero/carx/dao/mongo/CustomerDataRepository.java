@@ -6,6 +6,6 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 /**
  * @author Avvero
  */
-public interface CustomerDataRepository extends MongoRepository<CustomerData, String> {
-    CustomerData findAllByMoneyLessThan(long i);
+public interface CustomerDataRepository extends MongoRepository<CustomerData, String>, CustomerDataRepositoryExt {
+
 }

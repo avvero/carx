@@ -16,7 +16,7 @@ import org.springframework.data.annotation.Id;
 public class CustomerData {
 
     @Id
-    public String guid;
+    public String uuid;
     public Long money;
     public String country;
 

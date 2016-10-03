@@ -1,52 +1,88 @@
 package com.avvero.carx.conf;
 
-import com.avvero.carx.dao.jpa.CustomerRepository;
-import com.avvero.carx.dao.mongo.CustomerDataRepository;
-import com.avvero.carx.domain.Customer;
-import com.avvero.carx.domain.CustomerData;
+import com.avvero.carx.domain.Activity;
+import com.avvero.carx.exception.NotFoundException;
+import com.avvero.carx.service.CustomerActivityService;
+import com.avvero.carx.service.CustomerDataService;
+import com.google.gson.Gson;
+import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Component;
 
-import static spark.Spark.post;
+import static java.util.Collections.singletonMap;
+import static spark.Spark.*;
 
 /**
  * @author Avvero
  */
+@Slf4j
 @Component
 public class WebConfig {
 
     @Autowired
-    CustomerRepository customerRepository;
+    CustomerDataService customerDataService;
     @Autowired
-    CustomerDataRepository customerDataRepository;
-    @Autowired
-    private MongoTemplate mongoTemplate;
+    CustomerActivityService customerActivityService;
 
     public WebConfig() {
         setupRoutes();
     }
 
     private void setupRoutes() {
-        post("/hello", (req, res) -> {
-            String guid = "123127";
-            Customer customer = customerRepository.findOneByGuid(guid);
-            if (customer == null) {
-                customer = customerRepository.save(new Customer(null, guid));
-            }
-            CustomerData customerData = customerDataRepository.findOne(guid);
-            if (customerData == null){
-                Document doc = Document.parse(req.body());
-                doc.put("_id", guid); //TODO required to use something like @Id
-                mongoTemplate.insert(doc, "customerData");
+        post("/customer/:uuid/data", (request, response) -> {
+            String uuid = request.params(":uuid");
+
+            //TODO check uuid
+            //TODO check required field money
+            //TODO check required field country
+
+            Document doc = Document.parse(request.body());
+            customerDataService.updateCustomerData(uuid, doc);
+            return "";
+        });
+
+        get("/customer/:uuid/data", (request, response) -> {
+            String uuid = request.params(":uuid");
+
+            //TODO check uuid
+
+            Document customerData = customerDataService.findOneCustomerDataByUuid(uuid);
+            if (customerData == null) {
+                throw new NotFoundException("Customer not found");
             } else {
-                Document doc = Document.parse(req.body());
-                doc.put("_id", guid); //TODO required to use something like @Id
-                mongoTemplate.save(doc, "customerData");
+                response.type("application/json");
+                return customerData.toJson();
             }
-            customerData = customerDataRepository.findAllByMoneyLessThan(10);
-            return "Hello, " + customerData;
+        });
+
+        post("/customer/:uuid/activity", (request, response) -> {
+            String uuid = request.params(":uuid");
+
+            //TODO check uuid
+            //TODO check value of the activity
+
+            Activity activity = new Gson().fromJson(request.body(), Activity.class);
+            customerActivityService.save(uuid, activity);
+            return "";
+        });
+
+        exception(Exception.class, (exception, request, response) -> {
+            log.error(exception.getMessage(), exception);
+
+            response.type("application/json");
+            response.status(500);
+            response.body(new Gson().toJson(singletonMap("message", "Unexpected exception")));
+            return;
+        });
+
+        exception(NotFoundException.class, (exception, request, response) -> {
+            log.error(exception.getMessage(), exception);
+
+            response.type("application/json");
+            response.status(404);
+            response.body(new Gson().toJson(singletonMap("message", exception.getMessage())));
+            return;
         });
     }
 }
