@@ -39,6 +39,7 @@ public class WebConfig {
             //TODO check uuid
             //TODO check required field money
             //TODO check required field country
+            //TODO check request size
 
             Document doc = Document.parse(request.body());
             customerDataService.updateCustomerData(uuid, doc);
