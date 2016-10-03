@@ -1,4 +1,4 @@
-package com.avvero.carx.dao;
+package com.avvero.carx.dao.jpa;
 
 import com.avvero.carx.domain.Customer;
 import org.springframework.data.repository.CrudRepository;
