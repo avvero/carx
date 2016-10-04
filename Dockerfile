@@ -14,7 +14,8 @@ RUN apt-get install maven -y
 
 WORKDIR /tmp
 
-RUN git clone https://github.com/avvero/carx.git
+#RUN git clone https://github.com/avvero/carx.git
+COPY . /tmp/carx
 
 WORKDIR carx
 
