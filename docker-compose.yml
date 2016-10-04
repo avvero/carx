@@ -7,5 +7,10 @@ services:
       - "4567:4567"
     depends_on:
       - mongodb
+      - mysql
   mongodb:
       image: mongo:latest
+  mysql:
+      image: mysql:latest
+      environment:
+          - MYSQL_ROOT_PASSWORD=123456
