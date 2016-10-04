@@ -1,0 +1,11 @@
+version: '2'
+services:
+  carx-test:
+    build: .
+    command: spring-boot:run
+    ports:
+      - "4567:4567"
+    depends_on:
+      - mongodb
+  mongodb:
+      image: mongo:latest
