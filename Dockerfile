@@ -10,18 +10,16 @@ RUN apt-get update -y && \
     apt-get update -y
 RUN echo debconf shared/accepted-oracle-license-v1-1 select true | debconf-set-selections
 RUN apt-get install oracle-java8-installer -y
+RUN apt-get install maven -y
 
 WORKDIR /tmp
 
 RUN git clone https://github.com/avvero/carx.git
 
-WORKDIR f2g
+WORKDIR carx
 
-RUN chmod +x ./gradlew
+RUN  mvn compiler:compile
 
-RUN ./gradlew build
-
-#RUN java -Dserver.port=$PORT -Dspring.profiles.active=def $JAVA_OPTS -jar build/libs/*.war
-ENTRYPOINT ["./gradlew"]
+ENTRYPOINT ["mvn"]
 
 EXPOSE 4567
