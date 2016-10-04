@@ -66,7 +66,7 @@ class CustomerActivityServiceTests extends Specification {
     @Unroll
     def "Unlimited amount activities can be saved for the existed customer"(){
         when:
-            def customer = customerRepository.save(new Customer(uuid: uuid))
+            customerRepository.save(new Customer(uuid: uuid))
             n.times {
                 customerActivityService.save(uuid, new Activity(value: 100 * it))
             }

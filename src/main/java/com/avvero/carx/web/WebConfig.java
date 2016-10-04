@@ -1,4 +1,4 @@
-package com.avvero.carx.conf;
+package com.avvero.carx.web;
 
 import com.avvero.carx.domain.Activity;
 import com.avvero.carx.exception.NotFoundException;
@@ -10,9 +10,11 @@ import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import static java.util.Collections.singletonMap;
-import static org.eclipse.jetty.http.HttpStatus.INTERNAL_SERVER_ERROR_500;
-import static org.eclipse.jetty.http.HttpStatus.NOT_FOUND_404;
+import static com.avvero.carx.utils.ApplicationUtils.dataToJson;
+import static com.avvero.carx.utils.ApplicationUtils.isInteger;
+import static org.eclipse.jetty.http.HttpStatus.*;
+import static org.springframework.util.Assert.isTrue;
+import static org.springframework.util.Assert.notNull;
 import static spark.Spark.*;
 
 /**
@@ -35,22 +37,23 @@ public class WebConfig {
         post("/customer/:uuid/data", (request, response) -> {
             String uuid = request.params(":uuid");
 
-            //TODO check uuid
-            //TODO check required field money
-            //TODO check required field country
             //TODO check request size
             //TODO logging to file
 
+            log.info("--->" + request.body());
+
             Document doc = Document.parse(request.body());
+            //Validation for important data
+            notNull(doc.get("money"), "Field 'money' is required");
+            isTrue(isInteger(doc.get("money")), "Field 'money' is incorrect");
+            notNull(doc.get("country"), "Field 'country' is required");
+
             customerDataService.updateCustomerData(uuid, doc);
             return "";
         });
 
         get("/customer/:uuid/data", (request, response) -> {
             String uuid = request.params(":uuid");
-
-            //TODO check uuid
-
             Document customerData = customerDataService.findOneCustomerDataByUuid(uuid);
             if (customerData == null) {
                 throw new NotFoundException("Customer not found");
@@ -62,9 +65,6 @@ public class WebConfig {
 
         post("/customer/:uuid/activity", (request, response) -> {
             String uuid = request.params(":uuid");
-
-            //TODO check uuid
-            //TODO check value of the activity
 
             Activity activity = new Gson().fromJson(request.body(), Activity.class);
             customerActivityService.save(uuid, activity);
@@ -81,7 +81,7 @@ public class WebConfig {
 
             response.type("application/json");
             response.status(INTERNAL_SERVER_ERROR_500);
-            response.body(dataToJson(singletonMap("message", "Unexpected exception")));
+            response.body(dataToJson(new ResponseError("Unexpected exception")));
             return;
         });
 
@@ -90,12 +90,17 @@ public class WebConfig {
 
             response.type("application/json");
             response.status(NOT_FOUND_404);
-            response.body(dataToJson(singletonMap("message", exception.getMessage())));
+            response.body(dataToJson(new ResponseError(exception)));
             return;
         });
-    }
 
-    private String dataToJson(Object o) {
-        return new Gson().toJson(o);
+        exception(IllegalArgumentException.class, (exception, request, response) -> {
+            log.error(exception.getMessage(), exception);
+
+            response.type("application/json");
+            response.status(BAD_REQUEST_400);
+            response.body(dataToJson(new ResponseError(exception)));
+            return;
+        });
     }
 }

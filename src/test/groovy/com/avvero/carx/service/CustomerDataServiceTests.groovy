@@ -63,4 +63,19 @@ class CustomerDataServiceTests extends Specification {
             "bbbbbb" | null
     }
 
+    @Unroll
+    def "Max money by country"() {
+        setup:
+            customerDataService.updateCustomerData("a1", new Document([money: 100, country: "RUS"]))
+            customerDataService.updateCustomerData("a2", new Document([money: 200, country: "RUS"]))
+            customerDataService.updateCustomerData("a3", new Document([money: 300, country: "RUS"]))
+            customerDataService.updateCustomerData("b1", new Document([money: 100, country: "GBR"]))
+            customerDataService.updateCustomerData("c1", new Document([money: 100, country: "GBR"]))
+            customerDataService.updateCustomerData("c2", new Document([money: 200, country: "GBR"]))
+        expect:
+            1 == 1
+//            def result = customerDataRepository.findTopByMoney()
+
+    }
+
 }
