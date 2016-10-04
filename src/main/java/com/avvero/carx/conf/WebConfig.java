@@ -7,7 +7,6 @@ import com.avvero.carx.service.CustomerDataService;
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
-import org.eclipse.jetty.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -40,6 +39,7 @@ public class WebConfig {
             //TODO check required field money
             //TODO check required field country
             //TODO check request size
+            //TODO logging to file
 
             Document doc = Document.parse(request.body());
             customerDataService.updateCustomerData(uuid, doc);
