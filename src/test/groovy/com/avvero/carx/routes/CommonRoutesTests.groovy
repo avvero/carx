@@ -9,12 +9,17 @@ import org.bson.Document
 import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.SpringApplicationContextLoader
+import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Profile
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.ContextConfiguration
+import spock.lang.MockingApi
 import spock.lang.Specification
 import spock.lang.Unroll
 
 /**
+ * Issue https://github.com/mockito/mockito/pull/171
+ * Spring boot test does not support mockito 2
  * @author Avvero
  */
 //@RunWith(SpringJUnit4ClassRunner.class)
@@ -27,6 +32,14 @@ class CommonRoutesTests extends Specification {
     ProducerTemplate producerTemplate;
     @Autowired
     CustomerDataService customerDataService;
+
+    public static class MockConfiguration {
+        @Bean
+        @Profile("test")
+        CustomerDataService customerDataService() {
+            return Mockito.mock(CustomerDataService.class)
+        };
+    }
 
     @Unroll
     def "T"(){
@@ -41,6 +54,20 @@ class CommonRoutesTests extends Specification {
         where:
             uri                           |_
             "direct:customer-data-update" |_
+    }
+
+    @Unroll
+    def "T2"(){
+        setup:
+            def doc = new Document()
+            def uuid = "aaa"
+        when:
+            producerTemplate.sendBodyAndHeader(uri, doc, CommonConstants.UUID, uuid);
+        then:
+            Thread.sleep(1000)
+            Mockito.verify(customerDataService).updateCustomerData(uuid, doc)
+        where:
+            uri                           |_
             "seda:customer-data-update"   |_
     }
 
