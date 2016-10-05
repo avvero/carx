@@ -50,14 +50,14 @@ public class WebConfig {
             isTrue(isInteger(doc.get("money")), "Field 'money' is incorrect");
             notNull(doc.get("country"), "Field 'country' is required");
 
-            producerTemplate.sendBodyAndHeader("direct:customer-data", doc, UUID, uuid);
+            producerTemplate.sendBodyAndHeader("direct:customer-data-update", doc, UUID, uuid);
             return "";
         });
 
         //Fetch
         get("/customer/:uuid/data", (request, response) -> {
             String uuid = request.params(":uuid");
-            Document customerData = customerDataService.findOneCustomerDataByUuid(uuid);
+            Document customerData = (Document) producerTemplate.requestBody("direct:customer-data-fetch", uuid);
             if (customerData == null) {
                 throw new NotFoundException("Customer not found");
             } else {

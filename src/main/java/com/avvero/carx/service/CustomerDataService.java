@@ -34,7 +34,6 @@ public class CustomerDataService {
         }
     }
 
-    @Transactional
     public Document findOneCustomerDataByUuid(String uuid) {
         return customerDataRepository.findOneByUuid(uuid);
     }

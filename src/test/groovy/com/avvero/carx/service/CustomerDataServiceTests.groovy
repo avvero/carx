@@ -40,32 +40,32 @@ class CustomerDataServiceTests extends Specification {
     @Unroll
     def "CustomerData can be inserted or updated"() {
         setup:
-        customerDataService.updateCustomerData("aaaaaa", new Document([money: 100, country: "RUS"]))
+            customerDataService.updateCustomerData("aaaaaa", new Document([money: 100, country: "RUS"]))
         when:
-        customerDataService.updateCustomerData(uuid, new Document(json))
-        def fetchedJson = customerDataService.findOneCustomerDataByUuid(uuid)
+            customerDataService.updateCustomerData(uuid, new Document(json))
+            def fetchedJson = customerDataService.findOneCustomerDataByUuid(uuid)
         then:
-        fetchedJson.money == json.money
-        fetchedJson.country == json.country
+            fetchedJson.money == json.money
+            fetchedJson.country == json.country
 
-        customerRepository.count() == customerCount
-        customerDataRepository.count() == storedDataCount
+            customerRepository.count() == customerCount
+            customerDataRepository.count() == storedDataCount
         where:
-        uuid     | json                         | customerCount | storedDataCount
-        "aaaaaa" | [money: 200, country: "ENG"] | 1             | 1
-        "bbbbbb" | [money: 300, country: "RUS"] | 2             | 2
+            uuid     | json                         | customerCount | storedDataCount
+            "aaaaaa" | [money: 200, country: "ENG"] | 1             | 1
+            "bbbbbb" | [money: 300, country: "RUS"] | 2             | 2
     }
 
     @Unroll
     def "Existed CustomerData can be fetched by customer uuid"() {
         when:
-        customerDataService.updateCustomerData("aaaaaa", new Document([money: 100, country: "RUS"]))
+            customerDataService.updateCustomerData("aaaaaa", new Document([money: 100, country: "RUS"]))
         then:
-        customerDataService.findOneCustomerDataByUuid(uuid) == result
+            customerDataService.findOneCustomerDataByUuid(uuid) == result
         where:
-        uuid     | result
-        "aaaaaa" | [money: 100, country: "RUS"]
-        "bbbbbb" | null
+            uuid     | result
+            "aaaaaa" | [money: 100, country: "RUS"]
+            "bbbbbb" | null
     }
 
     @Unroll
@@ -95,8 +95,8 @@ class CustomerDataServiceTests extends Specification {
     def "Can update a lot of data async"() {
         when:
             1000.times {
-                producerTemplate.sendBodyAndHeader("direct:customer-data", new Document([money: 1, country: "RUS"]),
-                        CommonConstants.UUID, "a_${it}");
+                producerTemplate.sendBodyAndHeader("direct:customer-data-update",
+                        new Document([money: 1, country: "RUS"]), CommonConstants.UUID, "a_${it}");
             }
         then:
             noExceptionThrown()
