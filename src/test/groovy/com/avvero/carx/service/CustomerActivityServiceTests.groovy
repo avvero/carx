@@ -2,17 +2,22 @@ package com.avvero.carx.service
 
 import com.avvero.carx.App
 import com.avvero.carx.conf.LocationRepositoryTestConfiguration
+import com.avvero.carx.constants.CommonConstants
 import com.avvero.carx.dao.jpa.ActivityRepository
 import com.avvero.carx.dao.jpa.CustomerRepository
 import com.avvero.carx.domain.Activity
 import com.avvero.carx.domain.Customer
 import com.avvero.carx.exception.NotFoundException
+import org.apache.camel.ProducerTemplate
+import org.bson.Document
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.SpringApplicationContextLoader
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.ContextConfiguration
 import spock.lang.Specification
 import spock.lang.Unroll
+
+import static com.avvero.carx.constants.CommonConstants.UUID
 
 /**
  * Tests for CustomerActivityService
@@ -28,6 +33,8 @@ class CustomerActivityServiceTests extends Specification {
     ActivityRepository activityRepository;
     @Autowired
     CustomerRepository customerRepository;
+    @Autowired
+    ProducerTemplate producerTemplate;
 
     def cleanup() {
         customerRepository.deleteAll()
@@ -79,6 +86,27 @@ class CustomerActivityServiceTests extends Specification {
             "aaaaaa" | 1 | [0]
             "aaaaaa" | 5 | [0, 100, 200, 300, 400]
 
+    }
+
+    def "Can update a lot of data"() {
+        when:
+            customerRepository.save(new Customer(uuid: "aaaaaa"))
+            1000.times {
+                customerActivityService.save("aaaaaa", new Activity(value: 100 * it))
+            }
+        then:
+            noExceptionThrown()
+    }
+
+    def "Can update a lot of data async"() {
+        when:
+            customerRepository.save(new Customer(uuid: "aaaaaa"))
+            1000.times {
+                producerTemplate.sendBodyAndHeader("direct:activity", new Activity(value: 100 * it),
+                        CommonConstants.UUID, "aaaaaa");
+            }
+        then:
+            noExceptionThrown()
     }
 
 }

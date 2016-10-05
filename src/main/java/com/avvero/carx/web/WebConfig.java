@@ -2,14 +2,15 @@ package com.avvero.carx.web;
 
 import com.avvero.carx.domain.Activity;
 import com.avvero.carx.exception.NotFoundException;
-import com.avvero.carx.service.CustomerActivityService;
 import com.avvero.carx.service.CustomerDataService;
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.camel.ProducerTemplate;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import static com.avvero.carx.constants.CommonConstants.UUID;
 import static com.avvero.carx.utils.ApplicationUtils.dataToJson;
 import static com.avvero.carx.utils.ApplicationUtils.isInteger;
 import static org.eclipse.jetty.http.HttpStatus.*;
@@ -27,13 +28,14 @@ public class WebConfig {
     @Autowired
     CustomerDataService customerDataService;
     @Autowired
-    CustomerActivityService customerActivityService;
+    ProducerTemplate producerTemplate;
 
     public WebConfig() {
         setupRoutes();
     }
 
     private void setupRoutes() {
+
         post("/customer/:uuid/data", (request, response) -> {
             String uuid = request.params(":uuid");
 
@@ -48,10 +50,11 @@ public class WebConfig {
             isTrue(isInteger(doc.get("money")), "Field 'money' is incorrect");
             notNull(doc.get("country"), "Field 'country' is required");
 
-            customerDataService.updateCustomerData(uuid, doc);
+            producerTemplate.sendBodyAndHeader("direct:customer-data", doc, UUID, uuid);
             return "";
         });
 
+        //Fetch
         get("/customer/:uuid/data", (request, response) -> {
             String uuid = request.params(":uuid");
             Document customerData = customerDataService.findOneCustomerDataByUuid(uuid);
@@ -67,10 +70,8 @@ public class WebConfig {
             String uuid = request.params(":uuid");
 
             Activity activity = new Gson().fromJson(request.body(), Activity.class);
-            customerActivityService.save(uuid, activity);
-
-            response.type("application/json");
-            return dataToJson(activity);
+            producerTemplate.sendBodyAndHeader("direct:activity", activity, UUID, uuid);
+            return "";
         });
 
         /**
