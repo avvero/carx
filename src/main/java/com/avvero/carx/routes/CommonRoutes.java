@@ -18,8 +18,6 @@ public class CommonRoutes extends RouteBuilder {
                 .inOnly("bean:customerDataService?method=updateCustomerData");
 
         from("direct:customer-data-fetch")
-                .to("seda:customer-data-fetch");
-        from("seda:customer-data-fetch?concurrentConsumers=10")
                 .to("bean:customerDataService?method=findOneCustomerDataByUuid");
 
         from("direct:activity")
