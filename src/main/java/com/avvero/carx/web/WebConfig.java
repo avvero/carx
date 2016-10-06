@@ -12,10 +12,7 @@ import org.springframework.stereotype.Component;
 
 import static com.avvero.carx.constants.CommonConstants.UUID;
 import static com.avvero.carx.utils.ApplicationUtils.dataToJson;
-import static com.avvero.carx.utils.ApplicationUtils.isInteger;
 import static org.eclipse.jetty.http.HttpStatus.*;
-import static org.springframework.util.Assert.isTrue;
-import static org.springframework.util.Assert.notNull;
 import static spark.Spark.*;
 
 /**
@@ -41,16 +38,8 @@ public class WebConfig {
 
             //TODO check request size
             //TODO logging to file
-
-            log.info("--->" + request.body());
-
             Document doc = Document.parse(request.body());
-            //Validation for important data
-            notNull(doc.get("money"), "Field 'money' is required");
-            isTrue(isInteger(doc.get("money")), "Field 'money' is incorrect");
-            notNull(doc.get("country"), "Field 'country' is required");
-
-            producerTemplate.sendBodyAndHeader("direct:customer-data-update", doc, UUID, uuid);
+            producerTemplate.sendBodyAndHeader("seda:customer-data-update", doc, UUID, uuid);
             return "";
         });
 
@@ -59,7 +48,7 @@ public class WebConfig {
             String uuid = request.params(":uuid");
             Document customerData = (Document) producerTemplate.requestBody("direct:customer-data-fetch", uuid);
             if (customerData == null) {
-                throw new NotFoundException("Customer not found");
+                throw new NotFoundException("Customer data not found");
             } else {
                 response.type("application/json");
                 return customerData.toJson();
@@ -70,7 +59,7 @@ public class WebConfig {
             String uuid = request.params(":uuid");
 
             Activity activity = new Gson().fromJson(request.body(), Activity.class);
-            producerTemplate.sendBodyAndHeader("direct:activity", activity, UUID, uuid);
+            producerTemplate.sendBodyAndHeader("seda:activity", activity, UUID, uuid);
             return "";
         });
 
