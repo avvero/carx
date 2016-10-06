@@ -15,7 +15,7 @@ import javax.transaction.Transactional;
 /**
  * @author Avvero
  */
-@Service
+@Service("customerDataService")
 public class CustomerDataServiceImpl implements CustomerDataService {
 
     @Autowired
@@ -28,7 +28,8 @@ public class CustomerDataServiceImpl implements CustomerDataService {
     public void updateCustomerData(@Header(CommonConstants.UUID) String uuid, @Body Document doc) {
         Customer customer = customerRepository.findOneByUuid(uuid);
         if (customer == null) {
-            customerRepository.save(new Customer(null, uuid));
+            String country = doc.getString("country"); //TODO important RELATIONAL field
+            customerRepository.save(new Customer(null, uuid, null, country));
             customerDataRepository.save(uuid, doc);
         } else {
             customerDataRepository.update(uuid, doc);

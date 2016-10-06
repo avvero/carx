@@ -47,13 +47,14 @@ class CustomerDataServiceTests extends Specification {
         then:
             fetchedJson.money == json.money
             fetchedJson.country == json.country
+            customerRepository.findAll().country == countriesOfStored
 
             customerRepository.count() == customerCount
             customerDataRepository.count() == storedDataCount
         where:
-            uuid     | json                         | customerCount | storedDataCount
-            "aaaaaa" | [money: 200, country: "ENG"] | 1             | 1
-            "bbbbbb" | [money: 300, country: "RUS"] | 2             | 2
+            uuid     | json                         | customerCount | storedDataCount | countriesOfStored
+            "aaaaaa" | [money: 200, country: "RUS"] | 1             | 1               | ['RUS']
+            "bbbbbb" | [money: 300, country: "GBR"] | 2             | 2               | ['RUS', 'GBR']
     }
 
     @Unroll

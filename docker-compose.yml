@@ -10,8 +10,12 @@ services:
       - mysql
   mongodb:
       image: mongo:latest
+      ports:
+        - "27017:27017"
   mysql:
       image: mysql:latest
+      ports:
+        - "3316:3306"
       environment:
           - MYSQL_ROOT_PASSWORD=123456
           - MYSQL_DATABASE=carx

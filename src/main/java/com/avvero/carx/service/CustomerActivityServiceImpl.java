@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 /**
  * @author Avvero
  */
-@Service
+@Service("customerActivityService")
 public class CustomerActivityServiceImpl implements CustomerActivityService {
 
     @Autowired
