@@ -24,4 +24,12 @@ GROUP BY country;
 
 ### Для каждого конкретного пользователя X быстро получить отсортированный по дате список значений показателя "activity" и дату его получения за период Y.
 
-TODO
+Ниже приведен пример запроса для получения значений показателя "activity" для для пользователя с uuid = 1
+
+```sql
+SELECT activity.value, activity.created FROM activity, customer
+WHERE 
+activity.customer_id = customer.id
+AND customer.uuid = '1'
+ORDER BY created DESC;
+```
