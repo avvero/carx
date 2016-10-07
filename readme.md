@@ -17,7 +17,7 @@ db.getCollection('customerData').aggregate([
 зарегистрированных в период с 2016-10-01 по 2016-10-07.
 
 ```sql
-SELECT COUNT(*) FROM carx.customer 
+SELECT country, COUNT(*) FROM carx.customer 
 WHERE created >= '2016-10-01' AND created < '2016-10-07'
 GROUP BY country;
 ```
