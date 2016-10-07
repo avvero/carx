@@ -4,6 +4,7 @@ import org.apache.camel.builder.RouteBuilder;
 import org.springframework.stereotype.Component;
 
 /**
+ * Routing configuration
  * Created by fxdev-belyaev-ay on 05.10.16.
  */
 @Component
