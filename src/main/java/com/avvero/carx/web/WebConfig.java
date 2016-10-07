@@ -9,6 +9,9 @@ import org.apache.camel.ProducerTemplate;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import spark.Request;
+import spark.Response;
+import spark.ResponseTransformerRouteImpl;
 
 import static com.avvero.carx.constants.CommonConstants.UUID;
 import static com.avvero.carx.utils.ApplicationUtils.dataToJson;

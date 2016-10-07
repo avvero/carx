@@ -15,6 +15,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Profile
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.ContextConfiguration
+import spock.lang.Ignore
 import spock.lang.Specification
 import spock.lang.Unroll
 
@@ -102,7 +103,6 @@ class CommonRoutesTests extends Specification {
             "aaa" | "direct:customer-data-fetch"
     }
 
-    @Unroll
     def "Exception will be rethrown in sync route 'direct:customer-data-fetch'"() {
         when:
             Mockito.doThrow(new RuntimeException()).when(customerDataService).findOneCustomerDataByUuid(anyString())
