@@ -12,6 +12,13 @@ public class CommonRoutes extends RouteBuilder {
     @Override
     public void configure() throws Exception {
 
+        errorHandler(deadLetterChannel("log:input") //it will be good to store undelivered in something more persistence
+                        .maximumRedeliveries(5)
+                        .redeliveryDelay(1000)
+                        .backOffMultiplier(2)
+                        .logRetryStackTrace(true)
+        );
+
         from("direct:customer-data-update")
                 .inOnly("bean:customerDataService?method=updateCustomerData");
         from("seda:customer-data-update?concurrentConsumers=10")
