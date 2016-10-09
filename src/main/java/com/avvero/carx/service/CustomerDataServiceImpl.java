@@ -26,7 +26,7 @@ public class CustomerDataServiceImpl implements CustomerDataService {
     @Override
     @Transactional
     public void updateCustomerData(@Header(CommonConstants.UUID) String uuid, @Body Document doc) {
-        Customer customer = customerRepository.findOneByUuid(uuid); //TODO caching is required
+        Customer customer = customerRepository.findOneByUuid(uuid);
         if (customer == null) {
             String country = doc.getString("country"); //TODO important RELATIONAL field
             customerRepository.save(new Customer(null, uuid, null, country));
