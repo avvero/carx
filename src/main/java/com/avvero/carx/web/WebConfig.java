@@ -39,7 +39,6 @@ public class WebConfig {
         post("/customer/:uuid/data", (request, response) -> {
             String uuid = request.params(":uuid");
 
-            //TODO check request size
             //TODO logging to file
             Document doc = Document.parse(request.body());
             producerTemplate.sendBodyAndHeader("seda:customer-data-update", doc, UUID, uuid);

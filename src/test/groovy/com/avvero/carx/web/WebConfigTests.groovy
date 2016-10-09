@@ -69,7 +69,8 @@ class WebConfigTests extends Specification {
             def response = restTemplate.getForEntity(URI.create("http://localhost:4567/customer/$uuid/data"), Object.class)
         then:
             response.statusCode.value() == 200
-            response.body == customerData
+            response.body.money == customerData.money
+            response.body.country == customerData.country
         where:
             uuid = 2
             customerData = [money: 100, country: "RUS"]

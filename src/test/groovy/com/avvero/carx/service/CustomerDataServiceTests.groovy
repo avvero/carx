@@ -9,6 +9,7 @@ import org.apache.camel.ProducerTemplate
 import org.bson.Document
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.SpringApplicationContextLoader
+import org.springframework.test.annotation.Rollback
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.ContextConfiguration
 import spock.lang.Specification
@@ -38,52 +39,39 @@ class CustomerDataServiceTests extends Specification {
     }
 
     @Unroll
+    @Rollback
     def "CustomerData can be inserted or updated"() {
         setup:
-            customerDataService.updateCustomerData("aaaaaa", new Document([money: 100, country: "RUS"]))
+            customerDataService.updateCustomerData("a1", new Document([money: 100, country: "RUS"]))
         when:
             customerDataService.updateCustomerData(uuid, new Document(json))
             def fetchedJson = customerDataService.findOneCustomerDataByUuid(uuid)
         then:
             fetchedJson.money == json.money
             fetchedJson.country == json.country
-            customerRepository.findAll().country == countriesOfStored
-
-            customerRepository.count() == customerCount
-            customerDataRepository.count() == storedDataCount
+            customerRepository.findOneByUuid(uuid).country == json.country
         where:
-            uuid     | json                         | customerCount | storedDataCount | countriesOfStored
-            "aaaaaa" | [money: 200, country: "RUS"] | 1             | 1               | ['RUS']
-            "bbbbbb" | [money: 300, country: "GBR"] | 2             | 2               | ['RUS', 'GBR']
+            uuid | json
+            "a1" | [money: 200, country: "RUS"]
+            "a2" | [money: 300, country: "GBR"]
     }
 
     @Unroll
+    @Rollback
     def "Existed CustomerData can be fetched by customer uuid"() {
         when:
-            customerDataService.updateCustomerData("aaaaaa", new Document([money: 100, country: "RUS"]))
+            customerDataService.updateCustomerData("b1", new Document([money: 100, country: "RUS"]))
+            def persistedData = customerDataService.findOneCustomerDataByUuid(uuid)
         then:
-            customerDataService.findOneCustomerDataByUuid(uuid) == result
+            persistedData?.money == result?.money
+            persistedData?.country == result?.country
         where:
-            uuid     | result
-            "aaaaaa" | [money: 100, country: "RUS"]
-            "bbbbbb" | null
+            uuid | result
+            "b1" | [money: 100, country: "RUS"]
+            "b2" | null
     }
 
-    @Unroll
-    def "TODO Max money by country"() {
-        setup:
-            customerDataService.updateCustomerData("a1", new Document([money: 100, country: "RUS"]))
-            customerDataService.updateCustomerData("a2", new Document([money: 200, country: "RUS"]))
-            customerDataService.updateCustomerData("a3", new Document([money: 300, country: "RUS"]))
-            customerDataService.updateCustomerData("b1", new Document([money: 100, country: "GBR"]))
-            customerDataService.updateCustomerData("c1", new Document([money: 100, country: "GBR"]))
-            customerDataService.updateCustomerData("c2", new Document([money: 200, country: "GBR"]))
-        expect:
-            1 == 1
-//            def result = customerDataRepository.findTopByMoney()
-
-    }
-
+    @Rollback
     def "Can update a lot of data"() {
         when:
             1000.times {
@@ -93,6 +81,7 @@ class CustomerDataServiceTests extends Specification {
             noExceptionThrown()
     }
 
+    @Rollback
     def "Can update a lot of data async"() {
         when:
             1000.times {

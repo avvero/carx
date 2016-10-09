@@ -5,7 +5,6 @@ package com.avvero.carx.exception;
  */
 public class NotFoundException extends RuntimeException {
 
-    //TODO need a better name
     public NotFoundException(String message) {
         super(message);
     }

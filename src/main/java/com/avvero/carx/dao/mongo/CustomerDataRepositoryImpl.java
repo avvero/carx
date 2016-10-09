@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.BasicQuery;
 
+import java.util.Date;
+
 import static java.lang.String.format;
 
 /**
@@ -20,13 +22,15 @@ public class CustomerDataRepositoryImpl implements CustomerDataRepositoryExt {
 
         @Override
     public void save(String uuid, Document doc) {
-        doc.put("_id", uuid); //TODO required to use something like @Id
+        doc.put("_id", uuid);
+        doc.put("_created", new Date());
         mongoTemplate.insert(doc, COLLECTION_NAME);
     }
 
     @Override
     public void update(String uuid, Document doc) {
-        doc.put("_id", uuid); //TODO required to use something like @Id
+        doc.put("_id", uuid);
+        doc.put("_created", new Date());
         mongoTemplate.save(doc, COLLECTION_NAME);
     }
 
@@ -35,7 +39,7 @@ public class CustomerDataRepositoryImpl implements CustomerDataRepositoryExt {
         BasicQuery query = new BasicQuery(format(FIND_BY_ID_QUERY, uuid));
         Document document = mongoTemplate.findOne(query, Document.class, COLLECTION_NAME);
         if (document != null) {
-            document.remove("_id"); //TODO redundant information or not
+            document.remove("_id");
         }
         return document;
     }
