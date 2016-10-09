@@ -52,9 +52,9 @@ class CustomerActivityServiceTests extends Specification {
             activities.value == [value]
             activities.customerId == [customer.id]
         where:
-            uuid     | value
-            "aaaaaa" | 100
-            "bbbbbb" | 200
+            uuid   | value
+            "act1" | 100
+            "act2" | 200
 
     }
 
@@ -62,12 +62,12 @@ class CustomerActivityServiceTests extends Specification {
     def "NotFoundException will be thrown if customer does not exist"(){
         when:
             customerRepository.save(new Customer(uuid: customerUuuid))
-            customerActivityService.save(putativeUuid, new Activity(value: 1))
+            customerActivityService.save(activeUuid, new Activity(value: 1))
         then:
             thrown NotFoundException
         where:
-            customerUuuid | putativeUuid
-            "aaaaaa"      | "bbbbbb"
+            customerUuuid | activeUuid
+            "act3"        | "act4"
     }
 
     @Unroll
@@ -83,16 +83,16 @@ class CustomerActivityServiceTests extends Specification {
             activities.value == values
         where:
             uuid     | n | values
-            "aaaaaa" | 1 | [0]
-            "aaaaaa" | 5 | [0, 100, 200, 300, 400]
+            "act6"   | 1 | [0]
+            "act7"   | 5 | [0, 100, 200, 300, 400]
 
     }
 
     def "Can update a lot of data"() {
         when:
-            customerRepository.save(new Customer(uuid: "aaaaaa"))
+            customerRepository.save(new Customer(uuid: "act8"))
             1000.times {
-                customerActivityService.save("aaaaaa", new Activity(value: 100 * it))
+                customerActivityService.save("act8", new Activity(value: 100 * it))
             }
         then:
             noExceptionThrown()
@@ -100,10 +100,10 @@ class CustomerActivityServiceTests extends Specification {
 
     def "Can update a lot of data async"() {
         when:
-            customerRepository.save(new Customer(uuid: "aaaaaa"))
+            customerRepository.save(new Customer(uuid: "act9"))
             1000.times {
                 producerTemplate.sendBodyAndHeader("direct:activity", new Activity(value: 100 * it),
-                        CommonConstants.UUID, "aaaaaa");
+                        CommonConstants.UUID, "act9");
             }
         then:
             noExceptionThrown()
