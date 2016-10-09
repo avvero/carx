@@ -23,7 +23,7 @@ public class CustomerActivityServiceImpl implements CustomerActivityService {
     CustomerRepository customerRepository;
 
     public void save(@Header(CommonConstants.UUID) String uuid, @Body Activity activity) {
-        Customer customer = customerRepository.findOneByUuid(uuid); //TODO additional request is bad to do
+        Customer customer = customerRepository.findOneByUuid(uuid); //TODO caching is required
         if (customer == null) {
             throw new NotFoundException("Customer not found");
         }

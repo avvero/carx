@@ -5,6 +5,8 @@ services:
     command: spring-boot:run
     ports:
       - "4567:4567"
+    volumes:
+      - /var/log/service/carx:/var/log/service/carx
     links:
       - mongodb
       - mysql

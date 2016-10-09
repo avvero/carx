@@ -35,7 +35,7 @@ public class CommonRoutes extends RouteBuilder {
                 .errorHandler(defaultErrorHandler());
 
         from("seda:customer-data-update?concurrentConsumers=" + customerDataUpdateConcurrentConsumers)
-                .inOnly("direct:customer-data-update");
+                .inOnly("bean:customerDataService?method=updateCustomerData");
 
         from("direct:customer-data-fetch")
                 .to("bean:customerDataService?method=findOneCustomerDataByUuid")
@@ -46,7 +46,7 @@ public class CommonRoutes extends RouteBuilder {
                 .errorHandler(defaultErrorHandler());
 
         from("seda:activity?concurrentConsumers=" + customerActivityUpdateConcurrentConsumers)
-                .inOnly("direct:activity");
+                .inOnly("bean:customerActivityService?method=save");
 
     }
 
