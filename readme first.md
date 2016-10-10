@@ -1,7 +1,9 @@
 Приложение поставляется в виде архива и содержит помимо исходного кода и всего прочего файл `docker-compose.yml`.
 Для запуска контейнеров приложения требуется  **Compose 1.6.0+** и **Docker Engine 1.10.0+**.
-Команда для запуска через docker-compose
+Команды для запуска через docker-compose
 ```
+docker-compose build
+
 docker-compose up
 ```
 
